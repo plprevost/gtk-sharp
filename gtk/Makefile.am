@@ -116,6 +116,7 @@ customs = 				\
 	RecentChooserWidget.custom	\
 	RecentInfo.custom			\
 	ScrolledWindow.custom		\
+	Selection.custom			\
 	SelectionData.custom		\
 	Settings.custom			\
 	SpinButton.custom		\
