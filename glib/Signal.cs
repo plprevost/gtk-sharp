@@ -185,14 +185,7 @@ namespace GLib {
 				tref.RemoveSignal (name);
 		}
 
-		static EventHandler closure_disposed_cb;
-		static EventHandler ClosureDisposedHandler {
-			get {
-				if (closure_disposed_cb == null)
-					closure_disposed_cb = new EventHandler (ClosureDisposedCB);
-				return closure_disposed_cb;
-			}
-		}
+		static readonly EventHandler ClosureDisposedHandler = ClosureDisposedCB;
 
 		static void ClosureInvokedCB (object o, ClosureInvokedArgs args)
 		{
@@ -207,14 +200,7 @@ namespace GLib {
 				handler.DynamicInvoke (new object [] { args.Target, args.Args });
 		}
 
-		static ClosureInvokedHandler closure_invoked_cb;
-		static ClosureInvokedHandler ClosureInvokedHandler {
-			get {
-				if (closure_invoked_cb == null)
-					closure_invoked_cb = new ClosureInvokedHandler (ClosureInvokedCB);
-				return closure_invoked_cb;
-			}
-		}
+		static readonly ClosureInvokedHandler ClosureInvokedHandler = ClosureInvokedCB;
 
 		public static Signal Lookup (GLib.Object obj, string name)
 		{
@@ -343,8 +329,9 @@ namespace GLib {
 					vals [i] = new GLib.Value (args [i - 1]);
 
 				object ret_obj = null;
-				if (glibsharp_signal_get_return_type (signal_id) != GType.None.Val) {
-					GLib.Value ret = GLib.Value.Empty;
+				GType retType = glibsharp_signal_get_return_type (signal_id);
+				if (retType != GType.None) {
+					GLib.Value ret = new GLib.Value (retType);
 					g_signal_emitv (vals, signal_id, gquark, ref ret);
 					ret_obj = ret.Val;
 					ret.Dispose ();
@@ -400,7 +387,7 @@ namespace GLib {
 		unsafe static extern void g_signal_emitv (GLib.Value* instance_and_params, uint signal_id, uint gquark_detail, IntPtr return_value);
 
 		[DllImport("glibsharpglue-2", CallingConvention=CallingConvention.Cdecl)]
-		static extern IntPtr glibsharp_signal_get_return_type (uint signal_id);
+		static extern GType glibsharp_signal_get_return_type (uint signal_id);
 
 		[DllImport("libgobject-2.0-0.dll", CallingConvention=CallingConvention.Cdecl)]
 		static extern uint g_signal_lookup (IntPtr name, IntPtr itype);
